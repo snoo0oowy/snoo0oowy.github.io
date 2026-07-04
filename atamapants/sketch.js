@@ -46,14 +46,15 @@ const BUBBLE_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABaAAAAeAC
 
   function render() {
     ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, W, H);
 
     const padding = 24;
     const titleBar = 40;
     const frameX = Math.round(padding * W / canvas.offsetWidth);
-    const frameY = Math.round((padding + titleBar) * H / canvas.offsetHeight);
-    const frameBottom = Math.round(padding * H / canvas.offsetHeight);
+    const frameY = Math.round(padding * H / canvas.offsetHeight);
     const frameW = W - 2 * frameX;
-    const frameH = H - frameY - frameBottom;
+    const frameH = H - 2 * frameY;
 
     ctx.save();
     ctx.beginPath();
@@ -67,6 +68,56 @@ const BUBBLE_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABaAAAAeAC
     ctx.closePath();
     ctx.clip();
     drawUserImage(frameX, frameY, frameW, frameH);
+    ctx.restore();
+
+    // Draw decorative frame border
+    ctx.save();
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    const rr = 10;
+    ctx.moveTo(frameX, frameY + rr);
+    ctx.arcTo(frameX, frameY, frameX + rr, frameY, rr);
+    ctx.arcTo(frameX + frameW, frameY, frameX + frameW, frameY + rr, rr);
+    ctx.lineTo(frameX + frameW, frameY + frameH - rr);
+    ctx.arcTo(frameX + frameW, frameY + frameH, frameX + frameW - rr, frameY + frameH, rr);
+    ctx.lineTo(frameX + rr, frameY + frameH);
+    ctx.arcTo(frameX, frameY + frameH, frameX, frameY + frameH - rr, rr);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Draw titlebar
+    const titleH = titleBar * H / canvas.offsetHeight;
+    const titleGrad = ctx.createLinearGradient(0, frameY, 0, frameY + titleH);
+    titleGrad.addColorStop(0, '#f8f8f8');
+    titleGrad.addColorStop(1, '#e8e8e8');
+    ctx.fillStyle = titleGrad;
+    ctx.beginPath();
+    ctx.moveTo(frameX, frameY + rr);
+    ctx.arcTo(frameX, frameY, frameX + rr, frameY, rr);
+    ctx.arcTo(frameX + frameW, frameY, frameX + frameW, frameY + rr, rr);
+    ctx.lineTo(frameX + frameW, frameY + titleH);
+    ctx.lineTo(frameX, frameY + titleH);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#d0d0d0';
+    ctx.beginPath();
+    ctx.moveTo(frameX, frameY + titleH);
+    ctx.lineTo(frameX + frameW, frameY + titleH);
+    ctx.stroke();
+
+    // Draw traffic lights
+    const dotR = 5 * W / canvas.offsetWidth;
+    const dotY = frameY + titleH / 2;
+    const dotStartX = frameX + 12 * W / canvas.offsetWidth;
+    const dotGap = 16 * W / canvas.offsetWidth;
+    const colors = ['#ff5f57', '#febc2e', '#28c840'];
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.arc(dotStartX + i * dotGap, dotY, dotR, 0, Math.PI * 2);
+      ctx.fillStyle = colors[i];
+      ctx.fill();
+    }
     ctx.restore();
 
     const { w: bw, h: bh, s: bs } = getBubbleSize();
@@ -176,10 +227,9 @@ const BUBBLE_DATA_URL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABaAAAAeAC
     const padding = 24;
     const titleBar = 40;
     const frameX = Math.round(padding * W / canvas.offsetWidth);
-    const frameY = Math.round((padding + titleBar) * H / canvas.offsetHeight);
-    const frameBottom = Math.round(padding * H / canvas.offsetHeight);
+    const frameY = Math.round(padding * H / canvas.offsetHeight);
     const frameW = W - 2 * frameX;
-    const frameH = H - frameY - frameBottom;
+    const frameH = H - 2 * frameY;
     if (p.x >= frameX && p.x <= frameX + frameW && p.y >= frameY && p.y <= frameY + frameH) {
       isDraggingImg = true;
       dragStartX = p.x; dragStartY = p.y;
